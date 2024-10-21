@@ -1,10 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
-import DateHead from './components/DateHead';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+
+import DateHead from './components/DateHead';
 import AddTodo from './components/AddTodo';
 import Empty from './components/Empty';
 import TodoList from './components/TodoList';
+import todosStorage from './storages/todosStorage';
 
 function App() {
   const today = new Date(); //현재 날짜
@@ -14,6 +16,19 @@ function App() {
     {id: 2, text: '리액트 네이티브 기초 공부', done: false},
     {id: 3, text: '투두리스트 만들어보기', done: false},
   ]);
+
+  //불러오기
+  //useEffect(주시하고 싶은 값이 바꼈을 때 호출하는 함수, 주시하고 싶은 값)
+  useEffect(() => {
+    todosStorage
+      .get()
+      .then(setTodos)
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    todosStorage.set(todos).catch(console.error);
+  }, [todos]);
 
   //할일 등록하기
   const onInsert = text => {
@@ -29,7 +44,8 @@ function App() {
   };
 
   //할일 완료처리하기
-  const onToggle = id => {//파라미터로 받아온 id와 todo.id값이 일치하면 done값 반전시키기
+  const onToggle = id => {
+    //파라미터로 받아온 id와 todo.id값이 일치하면 done값 반전시키기
     const nextTodos = todos.map(todo =>
       todo.id === id ? {...todo, done: !todo.done} : todo,
     );
@@ -40,7 +56,7 @@ function App() {
   const onRemove = id => {
     const nextTodos = todos.filter(todo => todo.id !== id);
     setTodos(nextTodos);
-  }
+  };
 
   return (
     <SafeAreaProvider>
